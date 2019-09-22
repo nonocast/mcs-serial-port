@@ -1,0 +1,7 @@
+{
+    "C_Cpp.clang_format_fallbackStyle": "{ BasedOnStyle: Google, IndentWidth: 2,ColumnLimit: 0, AllowShortLoopsOnASingleLine: true, AllowShortBlocksOnASingleLine: true }",
+    "files.associations": {
+        "8052.h": "c",
+        "8051.h": "c"
+    },
+}
