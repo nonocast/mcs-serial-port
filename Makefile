@@ -3,12 +3,12 @@ SRC_DIR= src/
 ENTRY=app-a.c
 OUTPUT=app-a.ihx
 PROTOCOL=stc89
-DEVICE=/dev/tty.usbserial-14110
+DEVICE=/dev/tty.usbserial-14310
 
 build: ${OUTPUT}
 
 flash: build
-	stcgal -P ${PROTOCOL} -p ${DEVICE} ${BUILD_DIR}${OUTPUT} 
+	stcgal --debug -P ${PROTOCOL} -p ${DEVICE} ${BUILD_DIR}${OUTPUT} 
 
 ${OUTPUT}:
 	mkdir -p build && sdcc -o $(BUILD_DIR) ${SRC_DIR}${ENTRY}
