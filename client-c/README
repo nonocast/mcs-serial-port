@@ -1,0 +1,6 @@
+# Linux C 串口编程
+
+- [Linux 下串口编程入门 - IBM](https://www.ibm.com/developerworks/cn/linux/l-serials/index.html)
+- [Serial Programming Guide for POSIX Operating Systems](https://digilander.libero.it/robang/rubrica/serial.htm)
+- [xanthium-enterprises / Serial-Port-Programming-on-Linux](https://github.com/xanthium-enterprises/Serial-Port-Programming-on-Linux/blob/master/USB2SERIAL_Read/Reciever%20(PC%20Side)/SerialPort_read.c)
+- [linux - How to open, read, and write from serial port in C? - Stack Overflow](https://stackoverflow.com/questions/6947413/how-to-open-read-and-write-from-serial-port-in-c)
