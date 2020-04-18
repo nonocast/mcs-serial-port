@@ -17,7 +17,10 @@
 
 int open_port(void) {
   int fd; /* File descriptor for the port */
-  char *dev = "/dev/tty.usbserial-14310";
+  // char *dev = "/dev/tty.usbserial-14310";
+  char *dev = "/dev/cu.SLAB_USBtoUART";
+  // char *dev = "/dev/cu.usbserial-0001";
+
   fd = open(dev, O_RDWR | O_NOCTTY | O_NDELAY);
   if (fd == -1) {
     perror("open_port: Unable to open port");
@@ -34,32 +37,20 @@ int open_port(void) {
  *@param  speed  类型 int  串口速度
  *@return  void
  */
-int speed_arr[] = {
-    B38400, B19200, B9600, B4800, B2400, B1200, B300,
-    B38400, B19200, B9600, B4800, B2400, B1200, B300,
-};
-int name_arr[] = {
-    38400, 19200, 9600, 4800, 2400, 1200, 300,
-    38400, 19200, 9600, 4800, 2400, 1200, 300,
-};
-void set_speed(int fd, int speed) {
+void set_speed(int fd) {
   int i;
   int status;
   struct termios Opt;
   tcgetattr(fd, &Opt);
-  for (i = 0; i < sizeof(speed_arr) / sizeof(int); i++) {
-    if (speed == name_arr[i]) {
-      tcflush(fd, TCIOFLUSH);
-      cfsetispeed(&Opt, speed_arr[i]);
-      cfsetospeed(&Opt, speed_arr[i]);
-      status = tcsetattr(fd, TCSANOW, &Opt);
-      if (status != 0) {
-        perror("tcsetattr fd");
-        return;
-      }
-      tcflush(fd, TCIOFLUSH);
-    }
+  tcflush(fd, TCIOFLUSH);
+  cfsetispeed(&Opt, B57600);
+  cfsetospeed(&Opt, B57600);
+  status = tcsetattr(fd, TCSANOW, &Opt);
+  if (status != 0) {
+    perror("tcsetattr fd");
+    return;
   }
+  tcflush(fd, TCIOFLUSH);
 }
 
 /**
@@ -139,25 +130,55 @@ int set_Parity(int fd, int databits, int stopbits, int parity) {
   return (TRUE);
 }
 
-int main(void) {
-  perror("shit\n");
+unsigned char *bin_to_strhex(const unsigned char *bin, unsigned int binsz,
+                             unsigned char **result) {
+  unsigned char hex_str[] = "0123456789abcdef";
+  unsigned int i;
 
+  if (!(*result = (unsigned char *)malloc(binsz * 2 + 1)))
+    return (NULL);
+
+  (*result)[binsz * 2] = 0;
+
+  if (!binsz)
+    return (NULL);
+
+  for (i = 0; i < binsz; i++) {
+    (*result)[i * 2 + 0] = hex_str[(bin[i] >> 4) & 0x0F];
+    (*result)[i * 2 + 1] = hex_str[(bin[i]) & 0x0F];
+  }
+  return (*result);
+}
+
+int main(void) {
   int fd;
   int nread;
   char buff[512];
+  // char sendBuffer[5] = "\x04\x00\x01\xdb\x4b";
+  unsigned char sendBuffer[5] = {0x04, 0x00, 0x01, 0xdb, 0x4b};
 
   fd = open_port();
 
-  set_speed(fd, 9600);
+  set_speed(fd);
   if (set_Parity(fd, 8, 1, 'N') == FALSE) {
     perror("Set Parity Error\n");
     exit(0);
   }
 
+  printf("serial port open OK\n");
+
+  int ret = write(fd, sendBuffer, 5);
+  printf(">>> %d\n", ret);
+
   while (1) {
     while ((nread = read(fd, buff, 512)) > 0) {
-      buff[nread] = 0x00;
-      printf("%s", buff);
+      printf("nread: %d\n", nread);
+      // buff[nread] = 0x00;
+      // printf("%s", buff);
+      unsigned char *result;
+      printf("result : %s\n",
+             bin_to_strhex((unsigned char *)buff, nread, &result));
+      free(result);
     }
   }
 
